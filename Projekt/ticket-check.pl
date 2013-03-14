@@ -224,7 +224,7 @@ Kann ein Ticketsystem nicht erreicht werden, so wird dessen Retry-Counter (C<$re
 Überschreitet ein Retry-Counter das vordefinierte Limit ('maxretrys'), so wird ein 'ticketdown' Alarm an den Server 
 übermittelt.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<ticket-check.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

@@ -190,7 +190,7 @@ ein akustisches Signal auf dem Server aus, um über die Fehlkonfiguration zu ben
 
 Ist das Passwort falsch, wird der Server sofort und ohne Quittierung die Verbindung beenden.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<AlarmClient.pm> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

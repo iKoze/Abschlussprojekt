@@ -134,7 +134,7 @@ das C<Net::Ping> Perl Modul root Rechte benötigt, um Pings zu senden.
 Ist die Überprüfung erfolgreich, so wird eine Endlosschleife gestartet, in welcher der Reihe nach alle definierten Pinghosts 
 angepingt werden. Wann ein Alarm ausgegeben wird, steht in dem Abschnitt C<GESENDETE ALARME>.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<internet-check.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

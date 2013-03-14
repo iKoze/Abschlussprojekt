@@ -98,7 +98,7 @@ Damit dieses Script nicht nachdem alles andere gestartet wurde beendet wird, und
 auch zum beenden der anderen Scripte benutzt werden kann, wird am Schluss eine 
 Endlosschleife ausgefuehrt, in welcher für jeweils 100 Sekunden gewartet wird.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<startup.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

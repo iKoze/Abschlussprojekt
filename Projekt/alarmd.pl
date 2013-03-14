@@ -430,7 +430,7 @@ falls der Alarm auf dem Server nicht definiert ist. Ein 'err' und ein 'unknown' 
 
 Ist das Passwort falsch, wird der Server sofort und ohne Quittierung die Verbindung beenden.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<alarmd.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

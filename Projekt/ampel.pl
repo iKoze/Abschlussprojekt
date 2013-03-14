@@ -167,7 +167,7 @@ Nach all dem wird eine Endlosschleife gestartet, in welcher die Lampe ein und au
 das Script beendet wird. Soll die Lampe nur leuchten, so wird alle 10 Sekunden ein "an" Befehl an 
 die Lampe geschickt.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<ampel.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 

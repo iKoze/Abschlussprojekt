@@ -256,7 +256,7 @@ Kann eine Nagios Instanz nicht erreicht werden, so wird deren Retry-Counter (C<$
 Überschreitet ein Retry-Counter das vordefinierte Limit ('maxretrys'), so wird ein 'nagdown' Alarm an den Server 
 übermittelt.
 
-=head1 AUTHOR
+=head1 AUTOR
 
 B<nagios-check.pl> - Geschrieben von Florian Schießl (florian@trans.net) im Rahmen des 
 Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
