@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;ampel.pl&gt; - Script zum ansteuern einer einzelnen Farbe einer Cleware Ampel.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#beschreibung">BESCHREIBUNG</a></li>
+	<li><a href="#gebrauch">GEBRAUCH</a></li>
+	<li><a href="#optionen">OPTIONEN</a></li>
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>ampel.pl</strong> - Script zum ansteuern einer einzelnen Farbe einer Cleware Ampel.</p>
+<p>
+</p>
+<hr />
+<h1><a name="beschreibung">BESCHREIBUNG</a></h1>
+<p>Dieses Script schaltet eine Farbe der Ampel entsprechend der gegebenen Frequenz ein und aus, solange, bis 
+es beendet wird.</p>
+<p>
+</p>
+<hr />
+<h1><a name="gebrauch">GEBRAUCH</a></h1>
+<pre>
+        ampel.pl -c &lt;farbe&gt; -f &lt;frequenz&gt;
+        ampel.pl -c gelb -f 1.2</pre>
+<p>
+</p>
+<hr />
+<h1><a name="optionen">OPTIONEN</a></h1>
+<dl>
+<dt><strong><a name="c_color" class="item"><code>-c, --color</code></a></strong></dt>
+
+<dd>
+<p>Die Farbe, welche benuzt werden soll.</p>
+<p><strong>Farben und deren Aliase</strong>:</p>
+<pre>
+        ROT: 0, rot, red
+        GELB: 1, gelb, yellow
+        GRÜN: 2, grün, gruen, green</pre>
+</dd>
+<dt><strong><a name="f_frequency" class="item"><code>-f, --frequency</code></a></strong></dt>
+
+<dd>
+<p>Die Frequenz in Hertz (Hz), mit welcher geblinkt werden soll. Falls ausgelassen oder 0, wird geleuchtet.</p>
+<p>Asynchrones Blinken (z.B. kurz an, lang aus), kann wie folgt angegeben werden:</p>
+<pre>
+        -f 0.1/0.9</pre>
+<p>Zum Beispiel bedeutet für 0.1 Sekunden einschalten, dann für 0.9 Sekunden ausschalten.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>Zuerst wird überprüft, ob dieses Script als root ausgeführt wird. Die Ausführung als root ist notwendig, 
+da das Programm '<strong>clewarecontrol</strong>' auf ein Device unter '/dev/usb' zugreifen muss und diese normalerweise 
+nur für root zugänglich sind.</p>
+<p>Danach wird die Farbe und die Frequenz auf ihre Gültigkeit überprüft. Ist eines von beiden ungültig, so 
+wird das Script beendet. Der übergebene Wert für die Frequenz wird zuerst darauf überprüft, ob er einen 
+Schrägstrich (/) enthält. Falls dies der Fall ist, wird der Wert vor und hinter dem Schrägstrich 
+benutzt, um daraus die Wartezeit 1 (<code>$half1</code>) und Wartezeit 2 (<code>$half2</code>) zu berechnen. Die Wartezeit 1 
+vergeht, nachdem die Lampe eingeschaltet wurde und die Wartezeit 2 nachdem die Lampe ausgeschaltet wurde. 
+Bei beiden Wartezeiten handelt es sich um Mikrosekunden (1.000.000 µs = 1 s). Enthält der Wert hingegen 
+keinen Schrägstrich, so wird von einer Frequenz ausgegangen und anhand derer die Wartezeit zwischen dem 
+Ein- und Ausschalten errechnet.</p>
+<p>Die Funktion <code>exittsk()</code> wird mit den Signalen <em>INT</em>, <em>TERM</em>, <em>QUIT</em>, <em>ABRT</em> und <em>HUP</em> 
+verlinkt. Das bewirkt, dass sich dieses Script nicht sofort beendet, sondern zuerst noch 
+die Lampe ausgeschaltet werden kann.</p>
+<p>Nach all dem wird eine Endlosschleife gestartet, in welcher die Lampe ein und ausgeschaltet wird, bis 
+das Script beendet wird. Soll die Lampe nur leuchten, so wird alle 10 Sekunden ein &quot;an&quot; Befehl an 
+die Lampe geschickt.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>ampel.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 12.3.2013.</p>
+
+</body>
+
+</html>

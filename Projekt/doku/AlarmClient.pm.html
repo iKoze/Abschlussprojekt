@@ -1,0 +1,196 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;AlarmClient.pm&gt; - Perl Modul, um mit einem B&lt;alarmd.pl&gt; über Netzwerk zu kommunizieren.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#gebrauch">GEBRAUCH</a></li>
+	<li><a href="#optionen">OPTIONEN</a></li>
+	<li><a href="#funktionen">FUNKTIONEN</a></li>
+	<ul>
+
+		<li><a href="#alert__name___neu_">alert($name, $neu)</a></li>
+	</ul>
+
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#protokoll">PROTOKOLL</a></li>
+	<ul>
+
+		<li><a href="#client_zu_server">Client zu Server</a></li>
+		<li><a href="#server_zu_client">Server zu Client</a></li>
+	</ul>
+
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#siehe_auch">SIEHE AUCH</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>AlarmClient.pm</strong> - Perl Modul, um mit einem <strong>alarmd.pl</strong> über Netzwerk zu kommunizieren.</p>
+<p>
+</p>
+<hr />
+<h1><a name="gebrauch">GEBRAUCH</a></h1>
+<pre>
+        use AlarmClient;
+        
+        my $ac = AlarmClient-&gt;new(
+                'alerthost.example.com',
+                5061,
+                'Testclient',
+                'Serverpasswort',
+                5,
+                15,
+                '::',
+        );
+        
+        $ac-&gt;alert('EinAlarm', 1); # Alarm tritt auf
+        
+        $ac-&gt;alert('EinAlarm', 0); # Alarm vorbei</pre>
+<p>
+</p>
+<hr />
+<h1><a name="optionen">OPTIONEN</a></h1>
+<p>Alle Optionen werden im Konstruktor in nachfolgender Reihenfolge übergeben:</p>
+<dl>
+<dt><strong><a name="host" class="item"><code>Host</code></a></strong></dt>
+
+<dd>
+<p>Der Hostname oder die IP-Adresse des <strong>alarmd.pl</strong> Servers.</p>
+</dd>
+<dt><strong><a name="port" class="item"><code>Port</code></a></strong></dt>
+
+<dd>
+<p>Der Port, auf welchem der Server lauscht.</p>
+</dd>
+<dt><strong><a name="clientname" class="item"><code>Clientname</code></a></strong></dt>
+
+<dd>
+<p>Der Name, mit dem Sich die Instanz des <strong>AlarmClient</strong> gegenüber dem Server meldet.</p>
+</dd>
+<dt><strong><a name="passwort" class="item"><code>Passwort</code></a></strong></dt>
+
+<dd>
+<p>Das Password des <strong>alarmd.pl</strong> Servers.</p>
+</dd>
+<dt><strong><a name="erneute_versuche" class="item"><code>Erneute Versuche</code></a></strong></dt>
+
+<dd>
+<p>Die maximale Anzahl der erneuten Versuche, bis aufgegeben wird, den Server zu kontakten.</p>
+</dd>
+<dt><strong><a name="warten" class="item"><code>Warten</code></a></strong></dt>
+
+<dd>
+<p>Wie viele Sekunden nach einem erfolglosem Verbindungsversuch gewartet werden soll.</p>
+</dd>
+<dt><strong><a name="trenner" class="item"><code>Trenner</code></a></strong></dt>
+
+<dd>
+<p>Die Werte, welche an den Server geschickt werden, werden durch diese Zeichenkette getrennt.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="funktionen">FUNKTIONEN</a></h1>
+<p>
+</p>
+<h2><a name="alert__name___neu_">alert($name, $neu)</a></h2>
+<p><strong>Übergabeparameter:</strong></p>
+<dl>
+<dt><strong><a name="name" class="item"><code>name</code></a></strong></dt>
+
+<dd>
+<p>Der Name des Alarms.</p>
+</dd>
+<dt><strong><a name="neu" class="item"><code>neu</code></a></strong></dt>
+
+<dd>
+<p>Ob der Alarm neu ist (1) oder vorbei ist (0).</p>
+</dd>
+</dl>
+<p><strong>Rückgabewerte:</strong></p>
+<p>0 = Erfolg; 1 = Fehler</p>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>Tritt in dem verwendenden Script ein Alarm auf, so wird von diesem die Funktion <code>alert()</code> 
+aufgerufen und der Name des Alarms, sowie eine Eins (1) übergeben. Die Eins markiert, dass 
+ein Alarm auftritt. Eine Null (0) hingegen markiert, dass ein Alarm vorbei ist.</p>
+<p>Die Funktion <code>alert()</code> baut zunächst aus den übergebenen Werten die Nachricht für den 
+Server auf. Genaueres Siehe Abschnitt PROTOKOLL. Daraufhin wird eine Verbindung zum Server 
+aufgebaut und die Nachricht übermittelt. Sollte ein Verbindungsaufbau nicht möglich sein, 
+oder die Antwort vom Server nicht &quot;ok&quot;, &quot;err&quot; oder &quot;unknown&quot; lauten, so wird es nach der 
+vordefinierten Wartezeit erneut versucht. Sind alle erneuten Versuche auch fehlgeschlagen,
+so wird eine Eins an den Aufrufer zurückgegeben. Wurde die Nachricht erfolgreich 
+übermittelt, so wird eine Null zurückgegeben.</p>
+<p>
+</p>
+<hr />
+<h1><a name="protokoll">PROTOKOLL</a></h1>
+<p>
+</p>
+<h2><a name="client_zu_server">Client zu Server</a></h2>
+<p>Folgende Nachricht wird zum auslösen eines Alarms an den Server gesendet:</p>
+<pre>
+        Passwort::Clientname::Alarmname::1</pre>
+<p>Bei dem Passwort handelt es sich um das Serverpasswort. Der Clientname ist der Name, mit 
+wechem sich die Instanz dieses Modules gegenüber dem Server meldet. Alarmname ist Name 
+des Alarms, welcher ausgelöst oder aufgehoben werden soll. Die Eins markiert, dass der 
+Alarm ausgelöst wird. Bei den doppelten Doppelpunkten handelt es sich um den 
+vordefinierten Trenner. Dieser kann je nach Konfiguration abweichen, muss aber immer beim 
+Server und Client der gleiche sein.</p>
+<p>Folgende Nachricht hebt den ausgelösten Alarm wieder auf:</p>
+<pre>
+        Passwort::Clientname::Alarmname::0</pre>
+<p>Die Null markiert das Aufheben des Alarms.</p>
+<p>
+</p>
+<h2><a name="server_zu_client">Server zu Client</a></h2>
+<p>Die Antwort des Servers beschränkt sich auf ein einfaches</p>
+<pre>
+        'ok'</pre>
+<p>falls der Alarm erfolgreich aufgenommen wurde,</p>
+<pre>
+        'err'</pre>
+<p>falls die Anfrage ungültig war (sollte mit diesem Modul nicht auftreten) oder</p>
+<pre>
+        'unknown'</pre>
+<p>falls der Alarm auf dem Server nicht definiert ist. Ein 'err' und ein 'unknown' lösen 
+ein akustisches Signal auf dem Server aus, um über die Fehlkonfiguration zu benachrichtigen.</p>
+<p>Ist das Passwort falsch, wird der Server sofort und ohne Quittierung die Verbindung beenden.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>AlarmClient.pm</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 12.3.2013.</p>
+<p>
+</p>
+<hr />
+<h1><a name="siehe_auch">SIEHE AUCH</a></h1>
+<p><strong>alarmd.pl</strong> - Der Alarm-Server.</p>
+
+</body>
+
+</html>

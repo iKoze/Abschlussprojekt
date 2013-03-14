@@ -1,0 +1,132 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;ticket-check.pl&gt; - Ein treE Ticketsystem auf neue Tickets überprüfen.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#beschreibung">BESCHREIBUNG</a></li>
+	<li><a href="#konfiguration">KONFIGURATION</a></li>
+	<ul>
+
+		<li><a href="#beispiel_konfiguration">Beispiel-Konfiguration</a></li>
+	</ul>
+
+	<li><a href="#gesendete_alarme">GESENDETE ALARME</a></li>
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#siehe_auch">SIEHE AUCH</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>ticket-check.pl</strong> - Ein treE Ticketsystem auf neue Tickets überprüfen.</p>
+<p>
+</p>
+<hr />
+<h1><a name="beschreibung">BESCHREIBUNG</a></h1>
+<p>Dieses Script überprüft ein oder mehrere treE Ticketsystem(e) auf das Vorhandensein neuer Tickets. Dies erfolgt durch das 
+anmelden beim Ticketsystem als User und Überprüfung der Seite für neue Tickets.</p>
+<p>
+</p>
+<hr />
+<h1><a name="konfiguration">KONFIGURATION</a></h1>
+<p>Die Konfiguration erfolgt über die Konfigurationsdatei '<code>ticket-check.yml</code>', welche in dem selben Ordner wie das Script 
+selbst erwartet wird. Die Konfigurationsdatei ist im YAML Format.</p>
+<p>Bei dem YAML Format können mehrere Werte &quot;zusammengefasst&quot; werden. Hierbei ist die Anzahl der Leerzeichen 
+oder Tabulatoren für einen Abschnitt immer gleich zu halten.</p>
+<p>Kommentare beginnen in YAML mit einer Raute (#).</p>
+<p>
+</p>
+<h2><a name="beispiel_konfiguration">Beispiel-Konfiguration</a></h2>
+<pre>
+        config:                         # Die Basis-Konfiguration ist unter 'config:'
+                interval: 3             # Wie lange nach dem Check aller Ticketsysteme gewartet werden soll, bis diese
+                                        # erneut gecheckt werden. (Sekunden)
+                interval_betw_inst: 0   # Wie viel Zeit zwischen einzelnen Ticketsytemen vergehen soll. (Sekunden)
+                maxretrys: 2            # Maximale Anzahl der erneuten versuche, bis ein 'ticketdown' gesendet werden soll.
+                verbose: 0              # Debug Informationen ausgeben. (1)</pre>
+<pre>
+        alarmd:                         # Konfiguration für den AlarmClient genaueres siehe Dokumentation zu AlarmClient.pm.
+                host: '127.0.0.1'
+                port: 5061
+                client: ticket
+                pass: test
+                maxretrys: 5
+                after: 5
+                separator: '::'</pre>
+<pre>
+        instances:                      # Unter diesem Punkt werden die einzelnen Ticketsysteme definiert.
+                example:                # Name der Instanz
+                        url: 'https://ticket.example.com/index/status/1/'       # URL zur 'Neue Tickets' Seite.
+                        user: 'checkuser'                                       # Benutzername
+                        pass: 'Pa$$w0rD.'                                       # und Passwort für das Ticketsystem.</pre>
+<pre>
+                ticket2:                # Beispiel für ein zweites Ticketsystem
+                        url: 'https://ticket2.example.net/index/status/1/'
+                        user: 'checkuser'
+                        pass: 'pwTest'</pre>
+<p>
+</p>
+<hr />
+<h1><a name="gesendete_alarme">GESENDETE ALARME</a></h1>
+<p><strong>Folgende Alarme werden an den <strong>alarmd.pl</strong> Server übertragen:</strong></p>
+<ul>
+<li><strong><a name="neu" class="item"><code>neu</code></a></strong>
+
+<p>Falls eine Instanz einen neues Ticket enthält.</p>
+<p>Erst wenn keine neuen Tickets mehr da sind, also kein Ticket mehr in keinem der Ticketsysteme unter der Kategorie 'neu' ist,
+wird der Alarm aufgehoben.</p>
+</li>
+<li><strong><a name="ticketdown" class="item"><code>ticketdown</code></a></strong>
+
+<p>Falls eine Instanz nach vordefinierter Anzahl erneuter versuche nicht erreichbar ist.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>In dem Script wird eine Endlosschleife gestartet, in welcher für jedes Ticketsystem die jeweilige Seite für neue Tickets
+aufgerufen wird. In dieser Seite wird nach Ticket-ID's gesucht. Ticket-ID's fangen immer mit einer Raute (#) an und haben 
+dahinter eine fortlaufende Zahl. (Beispiel: #47615). Alle gefundenen Tickets werden in einem Hash zu dem jeweiligen 
+Ticketsystem gespeichert. Ist ein Ticket dabei, welches bei der letzten Überprüfung nicht dabei war (neues Ticket) so wird
+ein 'neu' Alarm an den <strong>alarmd.pl</strong> Server gesendet. Hierfür wird das Perl-Modul <strong>AlarmClient.pm</strong> benutzt.</p>
+<p>Kann ein Ticketsystem nicht erreicht werden, so wird dessen Retry-Counter (<code>$retrys</code>) für um eins erhöht. 
+Überschreitet ein Retry-Counter das vordefinierte Limit ('maxretrys'), so wird ein 'ticketdown' Alarm an den Server 
+übermittelt.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>ticket-check.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 12.3.2013.</p>
+<p>
+</p>
+<hr />
+<h1><a name="siehe_auch">SIEHE AUCH</a></h1>
+<p><strong>AlarmClient.pm</strong> - Das verwendete Perl Modul zur Kommunikation mit dem <strong>alarmd.pl</strong> Server.</p>
+<p><strong>alarmd.pl</strong> - Der Alarm-Server.</p>
+<p><a href="http://www.deam.org/tree/">http://www.deam.org/tree/</a> - Das treE Ticketsystem.</p>
+
+</body>
+
+</html>

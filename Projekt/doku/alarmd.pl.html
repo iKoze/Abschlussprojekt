@@ -1,0 +1,235 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;alarmd.pl&gt; - Übertragene Alarme verarbeiten und entsprechend die Ampel ansteuern und akustischen Alarm geben.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#beschreibung">BESCHREIBUNG</a></li>
+	<li><a href="#konfiguration">KONFIGURATION</a></li>
+	<ul>
+
+		<li><a href="#beispiel_konfiguration">Beispiel-Konfiguration</a></li>
+		<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	</ul>
+
+	<li><a href="#protokoll">PROTOKOLL</a></li>
+	<ul>
+
+		<li><a href="#client_zu_server">Client zu Server</a></li>
+		<li><a href="#server_zu_client">Server zu Client</a></li>
+	</ul>
+
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#siehe_auch">SIEHE AUCH</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>alarmd.pl</strong> - Übertragene Alarme verarbeiten und entsprechend die Ampel ansteuern und akustischen Alarm geben.</p>
+<p>
+</p>
+<hr />
+<h1><a name="beschreibung">BESCHREIBUNG</a></h1>
+<p>Der <strong>alarmd.pl</strong> Server lauscht auf einem konfigurierten Netzwerk-Port, um Alarme von Client-Scripten anzunehmen. Sendet ein Client einen 
+Alarm, so wird anhand der Konfiguration entschieden, wie die Ampel leuchten soll und welcher Sound dazu abgespielt wird. Sind keine Alarme
+vorhanden, so leuchtet die Ampel grün.</p>
+<p>
+</p>
+<hr />
+<h1><a name="konfiguration">KONFIGURATION</a></h1>
+<p>Die Konfiguration erfolgt über die Konfigurationsdatei '<code>alarmd.yml</code>', welche in dem selben Ordner wie der <strong>alarmd.pl</strong> Server 
+selbst erwartet wird. Die Konfigurationsdatei ist im YAML Format.</p>
+<p>Bei dem YAML Format können mehrere Werte &quot;zusammengefasst&quot; werden. Hierbei ist die Anzahl der Leerzeichen 
+oder Tabulatoren für einen Abschnitt immer gleich zu halten.</p>
+<p>Kommentare beginnen in YAML mit einer Raute (#).</p>
+<p>Die verschiedenen Alarme werden unter dem Abschnitt '<code>alarms</code>' beschrieben. Unter dem Abschnitt <code>alarms</code> folgt ein neuer Abschnitt für den 
+entsprechenden Client (Clientname). Unter diesem wiederrum die Alarme, welche ein Client auslösen kann. Unter den Alarmen gibt es jeweils 
+zwei neue Abschnitte: '<code>ampel</code>' und '<code>audio</code>'. Diese können auch ausgelassen werden, falls notwendig.</p>
+<p>Unter '<code>ampel</code>' wird die Farbe (<code>color</code>), die Priorität (<code>prio</code>) des Ampelsignals und 
+die Frequenz (<code>freq</code>) in Hertz (Hz), mit welcher die Farbe der Ampel blinken soll festgelegt. Siehe auch <strong>ampel.pl</strong>
+Die Priorität beschreibt, die wichtigkeit eines Ampelsignals. Liegt auf der Ampel zum Beispiel das Signal 'leuchte gelb' mit der Priorität 1 
+an und tritt Alarm auf, welcher 'blinke gelb' mit Priorität 2 definiert hat, so wird die Ampel gelb blinken. Das Signal 'leuchte gelb' wird 
+hierbei aber nicht &quot;vergessen&quot;, sondern bleibt im Hintergrund erhalten. Wird der Alarm mit der Priorität 2 beendet, so wird die Ampel wieder 
+gelb leuchten. Genaueres Siehe <code>FUNKTIONSWEISE</code>.</p>
+<p>Unter '<code>audio</code>' werden zwei Befehle festgelegt. '<code>in</code>' für einkommende Alarme. '<code>quit</code>' für beendete Alarme. Der Befehl wird dann 
+entsprechend dem Alarm ausgeführt. Der '<code>audio</code>' Abschnitt war ursprünglich dazu gedacht, eine Audiodatei abzuspielen, kann aber auch dazu 
+verwendet werden, andere Scripte zu starten, die dann zum Beispiel eine E-Mail verschicken. Hierbei ist zu beachten, dass Befehle, die hinter 
+'<code>in</code>' oder '<code>out</code>' definiert werden nicht mit dem Alarm gestartet und beendet werden, sondern im Hintergrund gestartet und nicht beendet 
+werden. Der '<code>in</code>' Befehl wird bei einem einkommenden Alarm gestartet, der '<code>out</code>' Befehl, wenn der Alarm vorbei ist. Die Befehle werden in 
+dem selben Ordner ausgeführt, in dem sich der <strong>alarmd.pl</strong> Server befindet.</p>
+<p>
+</p>
+<h2><a name="beispiel_konfiguration">Beispiel-Konfiguration</a></h2>
+<p>Ein Beispiel erklärt meistens mehr als jede Beschreibung.</p>
+<pre>
+        config:                                         # Die Basis-Konfiguration ist unter 'config:'
+                port: 5061                              # Der Port, auf welchem gelauscht wird
+                pass: test                              # Das Server-Passwort
+                ampel: &quot;./ampel.pl&quot;                     # Das Script zum ansteuern der Ampel. (Siehe auch 'ampel.pl')
+                separator: &quot;::&quot;                         # Die Werte, welche an den Server geschickt werden, werden durch diese Zeichenkette getrennt.
+                                                        # Siehe auch 'PROTOKOLL'
+                verbose: 0                              # Debug Informationen ausgeben. (1)
+                start: 'mplayer start.mp3'              # Befehl, welcher beim erfolgreichen Start des alarmd.pl ausgeführt wird.
+                error: 'mplayer error.mp3'              # Befehl, welcher bei einem Fehler ausgeführt wird.
+                stop: 'mplayer end.mp3'                 # Befehl, welcher beim erfolgreichen Beenden des alarmd.pl ausgeführt wird.</pre>
+<pre>
+        alarms:                                         # Die einzelnen Alarme werden unter diesem Abschnitt definiert.
+                nagios:                                 # Der Clientname
+                        warning:                        # Der Alarm, welcher von dem Client 'nagios' gesendet wird
+                                ampel:                  # Das Ampelsignal wird unter diesem Abschnitt definiert.
+                                        color: gelb     # Die Farbe der Ampel, welche verwendet wird.
+                                        prio: 1         # Die Priorität des Signals
+                                        freq: 0         # Die Frequenz, mit welcher geblinkt werden soll. Auslassen für 0; 0 entspricht leuchten.
+                                audio:                  # Die Befehle, welche 
+                                        in:             # beim eintreten des Alarms 
+                                        quit:           # oder beim beenden des Alarms ausgeführt werden.</pre>
+<pre>
+                        unknown:
+                                ampel:
+                                        color: gelb
+                                        prio: 1
+                                                        # Der 'audio', sowie 'ampel' Abschnitt kann auch ausgelassen werden, falls nicht benötigt. 
+                        critical:
+                                ampel:
+                                        color: rot
+                                        prio: 1
+                        down:
+                                ampel:
+                                        color: rot
+                                        prio: 2
+                                        freq: 1.2
+                        nagdown:
+                                ampel:
+                                        color: rot
+                                        prio: 3
+                                        freq: 2.4
+                ticket:
+                        neu:
+                                ampel:
+                                        color: gelb
+                                        prio: 2
+                                        freq: '0.1/0.9'
+                                audio:
+                                        in: 'mplayer new_ticket.mp3'    # Die Audio-Datei wird in dem Selben Ordner, wie dieses Script selbst, gesucht.
+                        ticketdown:
+                                ampel:
+                                        color: gelb
+                                        prio: 3
+                                        freq: 2.4
+                internet:
+                        weg:
+                                ampel:
+                                        color: gruen
+                                        prio: 3
+                                        freq: 4.8
+                                audio:
+                                        in: 'mplayer offline.mp3'
+                                        quit: 'mplayer start.mp3'</pre>
+<p>
+</p>
+<h2><a name="funktionsweise">FUNKTIONSWEISE</a></h2>
+<p>Zuerst wird überprüft, ob dieses Script als root ausgeführt wird. Die Ausführung als root ist notwendig, da da <strong>ampel.pl</strong> root-Rechte 
+benötigt, um die Ampel anzusteuern. Danach wird in das Verzeichnis gewechselt, in welchem sich dieses Script befindet, damit später ohne 
+großen Aufwand in der Konfiguration Dateien spezifiziert werden können, welche sich in dem selben Verzeichnis befinden.</p>
+<p>Die Funktion <code>exittsk()</code> wird mit den Signalen <em>INT</em>, <em>TERM</em>, <em>QUIT</em>, <em>ABRT</em> und <em>HUP</em> verlinkt. Das bewirkt, dass sich dieses 
+Script nicht sofort beendet, sondern zuerst noch der konfigurierte '<code>stop</code>' Befehl ausgeführt werden kann.</p>
+<p>Danach wird eine neue Warteschlange erstellt (<code>$inqueue</code>), welche zur Kommunikation zwischen den einzelnen <em>Verbindungs-Threads</em> 
+(<code>sub connhandler</code>) und dem <em>Arbeiter-Thread</em> (<code>sub worker</code>) genutzt wird. Daraufhin wird versucht, den konfigurierten Port zu öffnen. 
+Sollte dies fehlschlagen, wird der konfigurierte '<code>error</code>' Befehl ausgeführt und das Programm beendet. Der '<code>error</code>' Befehl wird außerdem 
+ausgeführt, sollte eine Fehlerhafte oder unbekannte Anfrage an den Server gestellt werden.</p>
+<p>Sobald der Port geöffnet wurde, wird der <em>Arbeiter-Thread</em> gestartet. Dieser schaltet die Ampel initial auf grün leuchten, da noch kein Alarm 
+vorhanden ist. Danach wartet der <em>Arbeiter-Thread</em> auf neue Aufträge, welche über die Warteschlange eintreffen.</p>
+<p>In dem <em>Hauptprozess</em> wird inzwischen der konfigurierte '<code>start</code>' Befehl im Hintergrund gestartet. Danach beginnt der <em>Hauptprozess</em>, bei dem 
+geöffneten Port auf neue Clients zu warten. Baut ein neuer Client eine Verbindung auf, so wird ein neuer <em>Verbindungs-Thread</em> gestartet, und das 
+Verbindungs-Handle an diesen übergeben. Danach wird im <em>Hauptprozess</em> sofort weiter auf neue Clients gewartet. Dies ist notwendig, damit nicht 
+ein Client alle eingehenden Verbindungen blockieren kann. Durch dieses Vorgehen &quot;kümmert&quot; sich um jeden Client ein eigener Thread.</p>
+<p>In dem <em>Verbindungs-Thread</em> wird jetzt auf eine (oder mehrere) Nachrichten des verbundenen Clients gewartet (Siehe auch <code>PROTOKOLL</code>). Für jede 
+Nachricht wird zunächst anhand dem Konfigurierten Trenner ('<code>separator</code>') zerlegt (gesplittet). Danach wird das Passwort überprüft. Sollte 
+das Passwort nicht mit dem konfigurierten Passwort ('<code>pass</code>') übereinstimmen, wird sofort die Verbindung geschlossen und der Thread beendet. 
+Stimmt das Passwort hingegen, wird die Nachricht zunächst auf ihre Vollständigkeit geprüft und dann darauf untersucht, ob der Alarm 
+bekannt ist, den der Client melden will. Ist die Nachricht unvollständig, so wird der konfigurierte '<code>error</code>' Befehl ausgeführt und dem 
+Client ein &quot;err&quot; gemeldet. Ist der Alarm unbekannt, wird dem Client ein &quot;unknown&quot; gemeldet und ebenfalls der '<code>error</code>' Befehl ausgeführt. Ist 
+der Alarm bekannt, wird er der Warteschlange hinzugefügt und dem Client ein &quot;ok&quot; gemeldet.</p>
+<p>Der <em>Arbeiter-Thread</em> nimmt den Alarm an und prüft zunächst, ob etwas für diesen Alarm konfiguriert wurde ('<code>ampel</code>', '<code>audio</code>'). Ist keines 
+von beiden konfiguriert worden, wird nichts unternommen und auf den nächsten Alarm gewartet. Ist ein '<code>audio</code>' Befehl konfiguriert worden, so 
+wird dieser im Hintergrund gestartet. Der '<code>in</code>' Befehl für neue Alarme, der '<code>quit</code>' Befehl für beendete Alarme. Wurde ein Ampelsignal definiert
+und der Alarm als neu gemeldet, wird dieses in einen Hash (<code>$signal</code>) eingetragen. Dieser Hash enthält alle aktuell auf der Ampel anliegenden 
+Signale in folgender Reihenfolge sortiert: <em>Farbe</em>, <em>Priorität</em>, <em>Eintrittszeitpunkt</em>. Wird der Alarm als beendet gemeldet, wird das Signal 
+wieder aus dem Hash entfernt. Nachdem der Hash bearbeitet wurde, wird in dem Hash für jede Farbe nach der Frequenz für mit der höchsten Priorität 
+gesucht und diese in einen weiteren Hash (<code>$final</code>) der jeweiligen Farbe zugeordnet. Sollten mehrere Frequenzen mit gleicher Priorität vorliegen, 
+wird die genommen, die als erstes in dem Hash steht, welche in der Regel dem ersten eingetroffenen Alarm dieser Priorität entspricht. Es wird nicht 
+empfohlen, mehrere Signale auf einer Farbe mit der selben Priorität zu vergeben. Der Hash <code>$final</code> enthält an dieser Stelle die neue Frequenz für 
+jede Farbe. Jetzt wird jeder <strong>ampel.pl</strong> Prozess beendet, welcher in dem Hash <code>$procs</code> vorhanden ist. An dieser Stelle leuchtet keine Farbe der 
+Ampel. Danach wird für jede Farbe in dem Hash <code>$final</code> ein neuer <strong>ampel.pl</strong> Prozess gestartet, welcher die jeweilige Farbe der Ampel mit der 
+gegebenen Frequenz ansteuert. Wurde kein neuer <strong>ampel.pl</strong> Prozess gestartet, so wird ein <strong>ampel.pl</strong> Prozess mit der Farbe grün gestartet, damit 
+die Ampel grün Leuchtet, wenn kein Fehler da ist. Dann wartet der <em>Arbeiter-Thread</em> wieder auf neue Alarme.</p>
+<p>
+</p>
+<hr />
+<h1><a name="protokoll">PROTOKOLL</a></h1>
+<p>
+</p>
+<h2><a name="client_zu_server">Client zu Server</a></h2>
+<p>Folgende Nachricht muss zum auslösen eines Alarms an den Server gesendet werden:</p>
+<pre>
+        Passwort::Clientname::Alarmname::1</pre>
+<p>Bei dem Passwort handelt es sich um das Serverpasswort ('<code>pass</code>'). Der Clientname ist der Name, mit 
+wechem sich der Client gegenüber dem Server meldet. Alarmname ist Name 
+des Alarms, welcher ausgelöst oder aufgehoben werden soll. Die Eins markiert, dass der 
+Alarm ausgelöst wird. Bei den doppelten Doppelpunkten (::) handelt es sich um den 
+vordefinierten Trenner ('<code>separator</code>'). Dieser kann je nach Konfiguration abweichen, muss aber immer beim 
+Server und Client der gleiche sein.</p>
+<p>Folgende Nachricht hebt den ausgelösten Alarm wieder auf:</p>
+<pre>
+        Passwort::Clientname::Alarmname::0</pre>
+<p>Die Null markiert das Aufheben des Alarms.</p>
+<p>
+</p>
+<h2><a name="server_zu_client">Server zu Client</a></h2>
+<p>Die Antwort des Servers beschränkt sich auf ein einfaches</p>
+<pre>
+        'ok'</pre>
+<p>falls der Alarm erfolgreich aufgenommen wurde,</p>
+<pre>
+        'err'</pre>
+<p>falls die Anfrage ungültig war oder</p>
+<pre>
+        'unknown'</pre>
+<p>falls der Alarm auf dem Server nicht definiert ist. Ein 'err' und ein 'unknown' starten den unter 
+'<code>error</code>' Konfigurierten Befehl, um über die Fehlkonfiguration zu benachrichtigen.</p>
+<p>Ist das Passwort falsch, wird der Server sofort und ohne Quittierung die Verbindung beenden.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>alarmd.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 11.3.2013.</p>
+<p>
+</p>
+<hr />
+<h1><a name="siehe_auch">SIEHE AUCH</a></h1>
+<p><strong>AlarmClient.pm</strong> - Ein Perl Modul zur Kommunikation mit diesem Server.</p>
+<p><strong>ampel.pl</strong> - Eine Farbe einer Cleware Ampel ansteuern.</p>
+
+</body>
+
+</html>

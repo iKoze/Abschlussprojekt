@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;internet-check.pl&gt; - Mehrere Hosts anpingen und Alarm auslösen, wenn alle nicht erreichbar sind.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#konfiguration">KONFIGURATION</a></li>
+	<ul>
+
+		<li><a href="#beispiel_konfiguration">Beispiel-Konfiguration</a></li>
+	</ul>
+
+	<li><a href="#gesendete_alarme">GESENDETE ALARME</a></li>
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#siehe_auch">SIEHE AUCH</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>internet-check.pl</strong> - Mehrere Hosts anpingen und Alarm auslösen, wenn alle nicht erreichbar sind.</p>
+<p>
+</p>
+<hr />
+<h1><a name="konfiguration">KONFIGURATION</a></h1>
+<p>Die Konfiguration erfolgt über die Konfigurationsdatei '<code>internet-check.yml</code>', welche in dem selben Ordner wie das Script 
+selbst erwartet wird. Die Konfigurationsdatei ist im YAML Format.</p>
+<p>Bei dem YAML Format können mehrere Werte &quot;zusammengefasst&quot; werden. Hierbei ist die Anzahl der Leerzeichen 
+oder Tabulatoren für einen Abschnitt immer gleich zu halten.</p>
+<p>Kommentare beginnen in YAML mit einer Raute (#).</p>
+<p>
+</p>
+<h2><a name="beispiel_konfiguration">Beispiel-Konfiguration</a></h2>
+<pre>
+        config:                         # Die Basis-Konfiguration ist unter 'config:'
+                timeout: 2              # Das Timeout eines Pings (Sekunden)
+                interval: 1             # Die Zeit, die Vergeht, bevor alle Hosts erneut gepingt werden (Sekunden)
+                verbose: 0              # Debug Informationen ausgeben. (1)</pre>
+<pre>
+        alarmd:                         # Konfiguration für den AlarmClient genaueres siehe Dokumentation zu AlarmClient.pm.
+                host: '127.0.0.1'
+                port: 5061
+                client: internet
+                pass: test
+                maxretrys: 5
+                after: 5
+                separator: '::'</pre>
+<pre>
+        pinghosts:                      # Die Hosts, welche angepingt werden sollen.
+                googlens: '8.8.8.8'     # Der Name davor dient nur zur identifizierung.
+                heise: 'heise.de'</pre>
+<p>
+</p>
+<hr />
+<h1><a name="gesendete_alarme">GESENDETE ALARME</a></h1>
+<p>Sobald kein Host mehr erreichbar ist, ein Alarm an den Server gesendet. Hierfür wird das Perl-Modul <strong>AlarmClient.pm</strong> benutzt. 
+Das macht selbstverständlich nur Sinn, wenn sich der <strong>alarmd.pl</strong> Server im selben Netzwerk, oder idealerweise sogar auf dem 
+selben Host befindet. Der Alarm wird aufgehoben, sobald ein Host aus der Liste wieder erreichbar ist.</p>
+<ul>
+<li><strong><a name="weg" class="item"><code>weg</code></a></strong>
+
+<p>Kein Host mehr erreichbar.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>Zuerst wird überprüft, ob das Script als root gestartet wurde. Dies ist notwendig, da 
+das <code>Net::Ping</code> Perl Modul root Rechte benötigt, um Pings zu senden.</p>
+<p>Ist die Überprüfung erfolgreich, so wird eine Endlosschleife gestartet, in welcher der Reihe nach alle definierten Pinghosts 
+angepingt werden. Wann ein Alarm ausgegeben wird, steht in dem Abschnitt <code>GESENDETE ALARME</code>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>internet-check.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 12.3.2013.</p>
+<p>
+</p>
+<hr />
+<h1><a name="siehe_auch">SIEHE AUCH</a></h1>
+<p><strong>AlarmClient.pm</strong> - Das verwendete Perl Modul zur Kommunikation mit dem <strong>alarmd.pl</strong> Server.</p>
+<p><strong>alarmd.pl</strong> - Der Alarm-Server.</p>
+
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;nagios-check.pl&gt; - Eine oder mehrere Nagios-Instanzen überprüfen, und den Status zusammenfassen.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#beschreibung">BESCHREIBUNG</a></li>
+	<li><a href="#konfiguration">KONFIGURATION</a></li>
+	<ul>
+
+		<li><a href="#beispiel_konfiguration">Beispiel-Konfiguration</a></li>
+	</ul>
+
+	<li><a href="#gesendete_alarme">GESENDETE ALARME</a></li>
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#siehe_auch">SIEHE AUCH</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>nagios-check.pl</strong> - Eine oder mehrere Nagios-Instanzen überprüfen, und den Status zusammenfassen.</p>
+<p>
+</p>
+<hr />
+<h1><a name="beschreibung">BESCHREIBUNG</a></h1>
+<p>Dieses Script meldet sich auf der Weboberfläche der Nagios Instanzen an und untersucht diese auf das Vorhandensein von Services mit dem 
+Status <em>CRITICAL</em>, <em>UNKNOWN</em>, <em>WARNING</em> und Hosts mit dem Status <em>DOWN</em> oder <em>UNREACHABLE</em>. Ist auf einer aller definierten Instanzen 
+ein Host oder ein Service mit einem erkannten Status, so wird das gemeldet.</p>
+<p><strong>HINWEIS:</strong> Dieses Script wurde mit einem Nagios 3.0.6 entwickelt und getestet. Die Funktion kann für andere Versionen nicht garantiert werden!</p>
+<p>
+</p>
+<hr />
+<h1><a name="konfiguration">KONFIGURATION</a></h1>
+<p>Die Konfiguration erfolgt über die Konfigurationsdatei '<code>nagios-check.yml</code>', welche in dem selben Ordner wie das Script 
+selbst erwartet wird. Die Konfigurationsdatei ist im YAML Format.</p>
+<p>Bei dem YAML Format können mehrere Werte &quot;zusammengefasst&quot; werden. Hierbei ist die Anzahl der Leerzeichen 
+oder Tabulatoren für einen Abschnitt immer gleich zu halten.</p>
+<p>Kommentare beginnen in YAML mit einer Raute (#).</p>
+<p>
+</p>
+<h2><a name="beispiel_konfiguration">Beispiel-Konfiguration</a></h2>
+<pre>
+        config:                         # Die Basis-Konfiguration ist unter 'config:'
+                interval: 5             # Wie lange nach dem Check aller Instanzen gewartet werden soll, bis 
+                                        # sie erneut gecheckt werden. (Sekunden)
+                interval_betw_inst: 0   # Wie viel Zeit zwischen den Instanzen vergehen soll (Sekunden)
+                maxretrys: 2            # Maximale Anzahl der erneuten versuche, bis ein 'nagdown' gesendet werden soll.
+                verbose: 0              # Debug Informationen ausgeben. (1)</pre>
+<pre>
+        alarmd:                         # Konfiguration für den AlarmClient genaueres siehe Dokumentation zu AlarmClient.pm.
+                host: '127.0.0.1'
+                port: 5061
+                client: nagios
+                pass: test
+                maxretrys: 5
+                after: 5
+                separator: '::'</pre>
+<pre>
+        instances:                      # Unter diesem Punkt werden die einzelnen Nagios Instanzen definiert.
+                transnet:               # Name der Instanz
+                        statuscgi: 'https://nagios.example.com/cgi-bin/nagios3/status.cgi'      # URL der Service Details Seite.
+                        host: 'nagios.example.com'      # Hostname der Instanz (wird für die Authentifikation gebraucht)
+                        port: 443                       # Port des Webinterfaces (80 = http; 443 = https)
+                        realm: 'Nagios Access'          # Wo sich authentifiziert werden soll.
+                        user: 'nagioscheck'             # Benutzername
+                        pass: 'Pa$$w0rD.'               # und Passwort für die Weboberfläche
+        
+                nagios2:                # Beispiel für 2. Instanz
+                        statuscgi: '<a href="http://nagios2.example.net/cgi-bin/nagios3/status.cgi">http://nagios2.example.net/cgi-bin/nagios3/status.cgi</a>' 
+                        host: 'nagios.example.net'
+                        port: 80
+                        realm: 'Nagios Access'
+                        user: 'checker'
+                        pass: 'pwTest'</pre>
+<p>
+</p>
+<hr />
+<h1><a name="gesendete_alarme">GESENDETE ALARME</a></h1>
+<p>Jeder Alarm außer '<a href="#nagdown"><code>nagdown</code></a>' wird erneut übertragen, sobald ein Service mehr den entsprechenden Status hat als davor.
+Ein Alarm wird erst aufgehoben, wenn auf keinem der Instanzen mehr ein entsprechender Status vorliegt.
+<strong>Folgende Alarme werden an den <strong>alarmd.pl</strong> Server übertragen:</strong></p>
+<ul>
+<li><strong><a name="warning" class="item"><code>warning</code></a></strong>
+
+<p>Falls eine Instanz eine <em>WARNING</em> enthält.</p>
+</li>
+<li><strong><a name="unknown" class="item"><code>unknown</code></a></strong>
+
+<p>Falls eine Instanz ein <em>UNKNOWN</em> enthält.</p>
+</li>
+<li><strong><a name="critical" class="item"><code>critical</code></a></strong>
+
+<p>Falls eine Instanz ein <em>CRITICAL</em> enthält.</p>
+</li>
+<li><strong><a name="down" class="item"><code>down</code></a></strong>
+
+<p>Falls eine Instanz ein <em>DOWN</em> enthält.</p>
+</li>
+<li><strong><a name="nagdown" class="item"><code>nagdown</code></a></strong>
+
+<p>Falls eine Instanz nach vordefinierter Anzahl erneuter versuche nicht erreichbar ist.</p>
+</li>
+</ul>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>In dem Script wird eine Endlosschleife gestartet, in welcher für die jeweilige Nagios Instanz die Service Details Seite aufgerufen wird.
+Diese wird auf das vorkommen von eines erkannten Status überprüft und gegebenenfalls ein Alarm an den <strong>alarmd.pl</strong> Server gesendet. 
+Hierfür wird das Perl-Modul <strong>AlarmClient.pm</strong> benutzt. Zwischen dem Status <em>DOWN</em> und <em>UNREACHABLE</em> wird nicht unterschieden.</p>
+<p>Kann eine Nagios Instanz nicht erreicht werden, so wird deren Retry-Counter (<code>$retrys</code>) für eins erhöht. 
+Überschreitet ein Retry-Counter das vordefinierte Limit ('maxretrys'), so wird ein 'nagdown' Alarm an den Server 
+übermittelt.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>nagios-check.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 11.3.2013.</p>
+<p>
+</p>
+<hr />
+<h1><a name="siehe_auch">SIEHE AUCH</a></h1>
+<p><strong>AlarmClient.pm</strong> - Das verwendete Perl Modul zur Kommunikation mit dem <strong>alarmd.pl</strong> Server.</p>
+<p><strong>alarmd.pl</strong> - Der Alarm-Server.</p>
+
+</body>
+
+</html>

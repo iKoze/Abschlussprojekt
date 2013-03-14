@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>B&lt;startup.pl&gt; - Dieses Script startet das Überwachungs-System.</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#beschreibung">BESCHREIBUNG</a></li>
+	<ul>
+
+		<li><a href="#start_reihenfolge">Start-Reihenfolge</a></li>
+	</ul>
+
+	<li><a href="#funktionsweise">FUNKTIONSWEISE</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p><strong>startup.pl</strong> - Dieses Script startet das Überwachungs-System.</p>
+<p>
+</p>
+<hr />
+<h1><a name="beschreibung">BESCHREIBUNG</a></h1>
+<p>Dieses Script startet zuerst das <strong>alarmd.pl</strong> Script und danach die anderen Scripte, welche 
+die einzelnen Dienste überwachen. Wird es beendet, so beendet es auch die anderen Scripte.</p>
+<p>
+</p>
+<h2><a name="start_reihenfolge">Start-Reihenfolge</a></h2>
+<dl>
+<dt><strong><a name="alarmd_pl" class="item"><code>alarmd.pl</code></a></strong></dt>
+
+<dd>
+<p>Script, welches die Ampel ansteuert.</p>
+</dd>
+<dt><strong><a name="internet_check_pl" class="item"><code>internet-check.pl</code></a></strong></dt>
+
+<dd>
+<p>Script, welches das Internet überwacht.</p>
+</dd>
+<dt><strong><a name="ticket_check_pl" class="item"><code>ticket-check.pl</code></a></strong></dt>
+
+<dd>
+<p>Script, welches benachrichtigt, sobald neue Tickets da sind.</p>
+</dd>
+<dt><strong><a name="nagios_check_pl" class="item"><code>nagios-check.pl</code></a></strong></dt>
+
+<dd>
+<p>Script, welches den Nagios-Status überwacht.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="funktionsweise">FUNKTIONSWEISE</a></h1>
+<p>Zuerst wird überprüft, ob das Script als root gestartet wurde. Dies ist notwendig, da 
+für das <strong>alarmd.pl</strong> und das <strong>internet-check.pl</strong> Script root-Rechet benötigt werden.</p>
+<p>Danach wird in das Verzeichnis gewechselt, in welchem sich dieses Script befindet. Dort 
+erwartet es die anderen Scripte.</p>
+<p>Die anderen Scripte werden daraufhin gestartet und einem Array hinzugefügt, damit sie 
+beendet werden können, sobald dieses Script beendet wird.</p>
+<p>Die Funktion <code>exittsk()</code> wird mit den Signalen <em>INT</em>, <em>TERM</em>, <em>QUIT</em>, <em>ABRT</em> und <em>HUP</em> 
+verlinkt. Das bewirkt, dass sich dieses Script nicht sofort beendet, sondern zuerst noch 
+die anderen beenden kann, welches innerhalb der Funktion <code>exittsk()</code> erfolgt.</p>
+<p>Damit dieses Script nicht nachdem alles andere gestartet wurde beendet wird, und es somit 
+auch zum beenden der anderen Scripte benutzt werden kann, wird am Schluss eine 
+Endlosschleife ausgefuehrt, in welcher für jeweils 100 Sekunden gewartet wird.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p><strong>startup.pl</strong> - Geschrieben von Florian Schießl (<a href="mailto:florian@trans.net">florian@trans.net</a>) im Rahmen des 
+Projektes zur IHK Abschlussprüfung zum Fachinformatiker für Systemintegration Sommer 2013. 
+Entwicklungsbeginn ist der 13.3.2013.</p>
+
+</body>
+
+</html>
