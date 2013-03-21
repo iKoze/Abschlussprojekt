@@ -155,7 +155,7 @@ wird das Script beendet. Der übergebene Wert für die Frequenz wird zuerst dara
 Schrägstrich (/) enthält. Falls dies der Fall ist, wird der Wert vor und hinter dem Schrägstrich 
 benutzt, um daraus die Wartezeit 1 (C<$half1>) und Wartezeit 2 (C<$half2>) zu berechnen. Die Wartezeit 1 
 vergeht, nachdem die Lampe eingeschaltet wurde und die Wartezeit 2 nachdem die Lampe ausgeschaltet wurde. 
-Bei beiden Wartezeiten handelt es sich um Mikrosekunden (1.000.000 µs = 1 s). Enthält der Wert hingegen 
+Bei beiden Wartezeiten handelt es sich um Mikrosekunden (1.000.000 us = 1 s). Enthält der Wert hingegen 
 keinen Schrägstrich, so wird von einer Frequenz ausgegangen und anhand derer die Wartezeit zwischen dem 
 Ein- und Ausschalten errechnet.
 

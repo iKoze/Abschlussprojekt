@@ -86,13 +86,16 @@ while (1)
 			my $unknown = 0;
 			my $critical = 0;
 			my $down = 0;
-
+			
+			my $nextline = 0;
 			foreach(@lines)
 			{
-				++$warning if m/statusWARNING/;
-				++$unknown if m/statusUNKNOWN/;
-				++$critical if m/statusCRITICAL/;
-				++$down if m/statusHOSTDOWN/ || m/statusHOSTUNREACHABLE/;
+				++$nextline;
+				++$warning if m/statusWARNING/ && $lines[$nextline] !~m/statusBGWARNINGACK/;
+				++$unknown if m/statusUNKNOWN/ && $lines[$nextline] !~m/statusBGUNKNOWNACK/;
+				++$critical if m/statusCRITICAL/ && $lines[$nextline] !~ m/statusBGCRITICALACK/;
+				++$down if m/statusHOSTDOWN/ && !m/statusHOSTDOWNACK/;
+				++$down if m/statusHOSTUNREACHABLE/ && !m/statusHOSTUNREACHABLEACK/;
 			}
 			$down = $down / 2;
 			&debug("Found ".$down." down hosts, ".$critical." critical, ".$unknown." unknown services and ".$warning." warning on ".$host."\n");
