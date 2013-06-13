@@ -25,6 +25,8 @@ my $verbose = $yaml->[0]->{config}->{verbose};
 # Root-Check
 die "This script must be run as root" if $> != 0;
 
+#print "$_\n" for keys %{ $yaml->[0] };
+
 my $ac = AlarmClient->new($alarmd->{host},$alarmd->{port},$alarmd->{client},$alarmd->{pass},$alarmd->{maxretrys},$alarmd->{after},$alarmd->{separator});
 my $p = Net::Ping->new("icmp");
 
